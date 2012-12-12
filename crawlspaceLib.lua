@@ -1031,15 +1031,20 @@ audio.playSFX = function( snd, params )
     return channel
 end
 
-            --[[ ########## Safe Web Popups  ########## ]--
+            --[[ ########## Safe Web Popups and Web Views  ########## ]--
 
-Now when you want to make a web popup, it's active on the device,
+Now when you want to make a web popup (or a web view), it's active on the device,
 but in the simulator you'll see a rectangle in the same place as your
 popup. Now you won't need to build and install  to set it's position.
 
 :: EXAMPLE ::
 
     native.showWebPopup( 10, 10, screenWidth - 20, screenHeight - 20, "http://crawlspacegames.com", {urlRequest=listener})
+	
+	or
+	
+	local webV = native.newWebView ( 10, 10, 150, 300 )
+	webV:request ( "http://www.owlcoding.com")
 
 ]]
 
@@ -1052,6 +1057,20 @@ end
 
 native.cancelWebPopup = function()
     if curPopup and curPopup.removeSelf then display.remove(curPopup) else cache.cancelWebPopup() end
+end
+
+cache.newWebView = native.newWebView
+local curView = nil
+native.newWebView = function ( x, y, width, height )
+	if not simulator then return cache.newWebView ( x, y, width, height )
+	else 
+		curView = display.newRect(x, y, width, height); 
+		curView:setFillColor(100, 100, 150, 100); 
+		curView.request = function ( curView, url ) 
+			print (" *** URL requested ", url)
+		end
+		return curView 
+	end
 end
 
 
